@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宝可梦图鉴</title>
+    <style>
+        body {
+            background: #f2f2f2;
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .pokedex {
+            background: #e53d3d;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            width: 370px;
+            padding: 32px 24px 24px 24px;
+            position: relative;
+            height: 440px;
+            display: flex;
+            flex-direction: column;
+        }
+        .pokedex-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .led {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4fc3f7;
+            border: 3px solid #fff;
+            margin-right: 12px;
+            box-shadow: 0 0 8px #4fc3f7;
+        }
+        .pokedex-title {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .pokemon-img {
+            display: block;
+            margin: 0 auto 12px auto;
+            width: 160px;
+            height: 160px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            object-fit: contain;
+        }
+        .pokemon-info {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .pokemon-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .pokemon-id {
+            color: #888;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .pokemon-attr {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .type {
+            padding: 2px 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: bold;
+            background: #f7c545;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .type.electric { background: #f7d02c; color: #333; }
+        .pokemon-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+            color: #555;
+            margin-top: 8px;
+        }
+        .pokemon-label {
+            color: #888;
+            font-size: 0.95rem;
+        }
+        /* 列表页样式 */
+        .pokemon-list {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            max-height: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        /* 美化滚动条 */
+        .pokemon-list::-webkit-scrollbar {
+            width: 8px;
+            background: #f2f2f2;
+        }
+        .pokemon-list::-webkit-scrollbar-thumb {
+            background: #e53d3d;
+            border-radius: 8px;
+        }
+        .pokemon-list::-webkit-scrollbar-thumb:hover {
+            background: #b71c1c;
+        }
+        .pokemon-list {
+            scrollbar-width: thin;
+            scrollbar-color: #e53d3d #f2f2f2;
+        }
+        .pokemon-list-item {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            width: 100px;
+            padding: 10px 0 8px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+            position: relative;
+        }
+        .pokemon-list-item:hover {
+            transform: translateY(-4px) scale(1.04);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.13);
+        }
+        .pokemon-list-img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            background: #f7f7f7;
+            border-radius: 8px;
+            margin-bottom: 4px;
+        }
+        .pokemon-list-name {
+            font-size: 1rem;
+            color: #333;
+            font-weight: bold;
+        }
+        .pokemon-list-id {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 12px;
+            background: #e53d3d;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 18px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+    <div class="pokedex" id="pokedex-list" style="display:flex;">
+        <div class="pokedex-header">
+            <div class="led"></div>
+            <div class="pokedex-title">宝可梦图鉴</div>
+        </div>
+        <ul class="pokemon-list" id="pokemon-list"></ul>
+    </div>
+    <div class="pokedex" id="pokedex-detail" style="display:none;">
+        <button class="back-btn" id="back-btn">返回列表</button>
+        <div class="pokedex-header">
+            <div class="led"></div>
+            <div class="pokedex-title">宝可梦详情</div>
+        </div>
+        <img id="pokemon-img" class="pokemon-img" src="" alt="宝可梦图片">
+        <div class="pokemon-info">
+            <div id="pokemon-name" class="pokemon-name"></div>
+            <div id="pokemon-id" class="pokemon-id"></div>
+            <div id="pokemon-types" class="pokemon-attr"></div>
+            <div class="pokemon-meta">
+                <div><span class="pokemon-label">身高</span> <span id="pokemon-height"></span> m</div>
+                <div><span class="pokemon-label">体重</span> <span id="pokemon-weight"></span> kg</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 中文名映射（部分示例，可自行补充）
+        const nameMap = {
+            'bulbasaur': '妙蛙种子', 'ivysaur': '妙蛙草', 'venusaur': '妙蛙花',
+            'charmander': '小火龙', 'charmeleon': '火恐龙', 'charizard': '喷火龙',
+            'squirtle': '杰尼龟', 'wartortle': '卡咪龟', 'blastoise': '水箭龟',
+            'pikachu': '皮卡丘', 'raichu': '雷丘',
+            // ...可继续补充
+        };
+        // 属性中文
+        const typeMap = {
+            'normal': '一般', 'fire': '火', 'water': '水', 'electric': '电', 'grass': '草',
+            'ice': '冰', 'fighting': '格斗', 'poison': '毒', 'ground': '地面', 'flying': '飞行',
+            'psychic': '超能力', 'bug': '虫', 'rock': '岩石', 'ghost': '幽灵', 'dragon': '龙',
+            'dark': '恶', 'steel': '钢', 'fairy': '妖精'
+        };
+        // 显示列表页
+        function showList() {
+            document.getElementById('pokedex-list').style.display = 'flex';
+            document.getElementById('pokedex-detail').style.display = 'none';
+        }
+        // 显示详情页
+        function showDetail() {
+            document.getElementById('pokedex-list').style.display = 'none';
+            document.getElementById('pokedex-detail').style.display = 'flex';
+        }
+        // 渲染宝可梦列表
+        function renderPokemonList(pokemons) {
+            const list = document.getElementById('pokemon-list');
+            list.innerHTML = '';
+            pokemons.forEach(p => {
+                const li = document.createElement('li');
+                li.className = 'pokemon-list-item';
+                li.innerHTML = `
+                    <img class="pokemon-list-img" src="${p.img}" alt="${p.name}">
+                    <div class="pokemon-list-name">${nameMap[p.name] || p.name}</div>
+                    <div class="pokemon-list-id">No. ${p.id.toString().padStart(3, '0')}</div>
+                `;
+                li.onclick = () => loadPokemonDetail(p.name);
+                list.appendChild(li);
+            });
+        }
+        // 获取前151只宝可梦
+        function fetchPokemonList() {
+            fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+                .then(res => res.json())
+                .then(async data => {
+                    // 获取每只宝可梦的图片和编号
+                    const pokemons = data.results.map((item, idx) => ({
+                        name: item.name,
+                        id: idx + 1,
+                        img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${idx+1}.png`
+                    }));
+                    renderPokemonList(pokemons);
+                });
+        }
+        // 加载详情
+        function loadPokemonDetail(name) {
+            fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('pokemon-img').src = data.sprites.other['official-artwork'].front_default;
+                    document.getElementById('pokemon-name').textContent = nameMap[data.name] || data.name;
+                    document.getElementById('pokemon-id').textContent = `No. ${data.id.toString().padStart(3, '0')}`;
+                    // 属性
+                    const types = data.types.map(t => t.type.name);
+                    const typesHtml = types.map(type => {
+                        let cn = 'type';
+                        if(type === 'electric') cn += ' electric';
+                        let typeName = typeMap[type] || type;
+                        return `<span class="${cn}">${typeName}</span>`;
+                    }).join('');
+                    document.getElementById('pokemon-types').innerHTML = typesHtml;
+                    // 身高体重
+                    document.getElementById('pokemon-height').textContent = (data.height / 10).toFixed(1);
+                    document.getElementById('pokemon-weight').textContent = (data.weight / 10).toFixed(1);
+                    showDetail();
+                });
+        }
+        // 返回按钮
+        document.getElementById('back-btn').onclick = showList;
+        // 初始化
+        fetchPokemonList();
+        showList();
+    </script>
+</body>
+</html>
